@@ -5,20 +5,25 @@
         .module('angular-nicescroll', [])
         .directive('ngNicescroll', ngNicescroll);
 
-    ngNicescroll.$inject = ['$rootScope','$parse'];
+    ngNicescroll.$inject = ['$rootScope','$parse', '$timeout'];
 
     /* @ngInject */
-    function ngNicescroll($rootScope,$parse) {
+    function ngNicescroll($rootScope,$parse, $timeout) {
         // Usage:
         //
         // Creates:
         //
         var directive = {
+            scope: {
+                ngModel: '='
+            },
             link: link
         };
         return directive;
 
         function link(scope, element, attrs, controller) {
+
+
 
             var niceOption = scope.$eval(attrs.niceOption)
 
@@ -46,6 +51,19 @@
                 }
             })
 
+            if(scope.ngModel){
+                scope.$watch('ngModel', function(newValue, oldValue, scope) {
+                    if(!angular.equals(newValue, oldValue)){
+                        if (angular.isDefined(niceScroll.version)) {
+                            niceScroll.remove();
+                        }
+                        $timeout(function(){
+                            niceScroll = $(element).niceScroll(niceOption);
+                            nice = $(element).getNiceScroll();                  
+                        });
+                    }
+                }, true);
+            }
 
         }
     }
